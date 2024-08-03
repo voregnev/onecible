@@ -1,0 +1,10 @@
+---
+- name: Install GetOneC
+  hosts: all
+  become: yes  # Use sudo for tasks needing elevated privileges
+  vars:
+    env_file_path: "./onecible/.env"  # Path to .env file
+    distribs_folder: "./distribs"
+  
+  roles:
+    - getonec

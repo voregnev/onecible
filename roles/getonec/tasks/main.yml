@@ -1,0 +1,38 @@
+---
+- name: Download GetOneC
+  get_url:
+    url: https://github.com/platform/realesaes/getonec.tgz
+    dest: /tmp/getonec.tgz
+
+- name: Extract GetOneC
+  unarchive:
+    src: /tmp/getonec.tgz
+    dest: /tmp/
+    remote_src: yes
+
+- name: Install GetOneC
+  command: /bin/bash /tmp/getonec/install.sh  # Adjust this if necessary based on the actual installation method
+
+- name: Create distribs folder
+  file:
+    path: "{{ distribs_folder }}"
+    state: directory
+
+- name: Load environment variables from .env file
+  command: /bin/bash -c "source {{ env_file_path }} && oneget --debug --path {{ distribs_folder }} -u $ONEC_USERNAME -p $ONEC_PASSWORD get platform:full.linux.x64@latest"
+  args:
+    executable: /bin/bash
+
+- name: Unzip server64 file
+  unarchive:
+    src: "/distrib/platform83/{{ version }}/server64_{{ version }}.zip"
+    dest: "{{ distribs_folder }}"
+    remote_src: yes
+
+- name: Run the server64 file
+  command: "/usr/sbin/server64_{{ version }}"  # Adjust based on your executable location and name
+
+- name: Stop 1C service
+  systemd:
+    name: "1c"
+    state: stopped
